@@ -31,37 +31,49 @@ import tomoFunctions2 as tf
 from skimage.transform import iradon, radon, rescale
 import skimage.filters as filters
 import tomopy
-
+from sys import platform
 
 # %%============================================================================
 # % DATA LOCATIONS - 3A AND ID1A3 SAVING SCHEMA
 # ==============================================================================
 
-cycle = '2021-2'
-beamline = 'id3a'
-btr = 'hassani-1000-5'
-sampleID = 'He-2/Tomo'
 
-# Locations of tomography dark field images
-darkfield_scann = 2
-tdf_data_folder = '/nfs/chess/raw/'+cycle+'/'+beamline + \
-    '/'+btr+'/'+sampleID+'/'+str(darkfield_scann)+'/nf/'
+# CLASSE directory
+if platform == "linux":
+    cycle = '2021-2'
+    beamline = 'id3a'
+    btr = 'hassani-1000-5'
+    sampleID = 'He-2/Tomo'
+    # Locations of tomography dark field images
+    darkfield_scann = 2
+    tdf_data_folder = '/nfs/chess/raw/'+cycle+'/'+beamline + \
+        '/'+btr+'/'+sampleID+'/'+str(darkfield_scann)+'/nf/'
+    # Locations of tomography bright field images
+    brightfield_scann = 3
+    tbf_data_folder = '/nfs/chess/raw/'+cycle+'/'+beamline + \
+        '/'+btr+'/'+sampleID+'/'+str(brightfield_scann)+'/nf/'
+    # Locations of tomography images
+    tomo_scann = 4
+    tomo_data_folder = '/nfs/chess/raw/'+cycle+'/'+beamline + \
+        '/'+btr+'/'+sampleID+'/'+str(tomo_scann)+'/nf/'
+
+# local directory
+else:
+    # Locations of tomography dark field images
+    tdf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//2'
+    # Locations of tomography bright field images
+    tbf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//3'
+    # Locations of tomography images
+    tomo_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//4'
+
 tdf_img_start = 151267
 tdf_num_imgs = 20
-
-# Locations of tomography bright field images
-brightfield_scann = 3
-tbf_data_folder = '/nfs/chess/raw/'+cycle+'/'+beamline + \
-    '/'+btr+'/'+sampleID+'/'+str(brightfield_scann)+'/nf/'
 tbf_img_start = 151293
 tbf_num_imgs = 20
-
-# Locations of tomography images
-tomo_scann = 4
-tomo_data_folder = '/nfs/chess/raw/'+cycle+'/'+beamline + \
-    '/'+btr+'/'+sampleID+'/'+str(tomo_scann)+'/nf/'
 tomo_img_start = 151319
 tomo_num_imgs = 1440
+
+
 # %%============================================================================
 # % DETECTOR PARAMETERS
 # ==============================================================================
@@ -188,7 +200,7 @@ tomo_3d = np.zeros(
     [stack.shape[1], reconstruction_fbp.shape[0], reconstruction_fbp.shape[1]])
 # %%
 for layer in range(0, stack.shape[1]):
-    print layer
+    print(layer)
     center = pixel_dist*effective_pixel
 
 # def tomo_reconstruct_layer(rad_stack,cross_sectional_dim,layer_row=1024,start_tomo_ang=0., end_tomo_ang=360.,tomo_num_imgs=360, center=0.,pixel_size=0.00148):
