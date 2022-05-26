@@ -789,8 +789,8 @@ def genDark(tdf_data_folder, tdf_fold_start=None, num2skip=None,
         print('Loading data for median dark field...')
 
         for x in range(len(tdf_img_nums)):
-            tdf_stack[x, :, :] = img.imread(
-                tdf_data_folder+'nf_%0.6d.tif' % (tdf_img_nums[x]))
+            tdf_stack[x, :, :] = plt.imread(
+                tdf_data_folder + 'nf_%0.6d.tif' % (tdf_img_nums[x]))
             # image_stack[x,:,:]=np.flipud(tmp_img>threshold)
 
         # take the median
@@ -812,11 +812,11 @@ def genDark(tdf_data_folder, tdf_fold_start=None, num2skip=None,
         counter = 0
         for x in range(0, len(theta)-1):
             if(theta[x] > 0):
-                #                print(tdf_data_folder+'nf_%0.6d.tif' %(int(firstImage) + x))
-                tdf_stack[x, :, :] = img.imread(
+                # print(tdf_data_folder+'nf_%0.6d.tif' %(int(firstImage) + x))
+                tdf_stack[x, :, :] = plt.imread(
                     tdf_data_folder+'nf_%0.6d.tif' % (int(firstImage) + x))
             else:
-                counter += 1
+                counter += 1    
         tdf = np.median(tdf_stack[counter:len(theta)-1], axis=0)
         print('complete!')
         return tomopy.misc.corr.remove_neg(tdf, val=0)
@@ -830,8 +830,8 @@ def genBright(tbf_data_folder, tdf, tbf_fold_start=None, num2skip=None, tbf_num_
         tbf_stack = np.zeros([tbf_num, 2048, 2048])
         print('Loading data for median bright field...')
         for ii in np.arange(tbf_num):
-            tbf_stack[ii, :, :] = img.imread(
-                tbf_data_folder+'nf_%0.6d.tif' % (tbf_img_nums[ii]))-tdf
+            tbf_stack[ii, :, :] = plt.imread(
+                tbf_data_folder + 'nf_%0.6d.tif' % (tbf_img_nums[ii])) - tdf
             # image_stack[ii,:,:]=np.flipud(tmp_img>threshold)
         tbf = np.median(tbf_stack, axis=0)
         print('complete!')
@@ -849,7 +849,7 @@ def genBright(tbf_data_folder, tdf, tbf_fold_start=None, num2skip=None, tbf_num_
         counter = 0
         for x in range(0, len(theta)-1):
             if(theta[x] > 0):
-                tbf_stack[x, :, :] = img.imread(
+                tbf_stack[x, :, :] = plt.imread(
                     tbf_data_folder+'nf_%0.6d.tif' % (int(firstImage) + x + 2)) - tdf
                 # image_stack[x,:,:]=np.flipud(tmp_img>threshold)
             else:
@@ -894,7 +894,7 @@ def genTomo(tomoDataFolder, tdf, tbf, img_x_bounds, img_y_bounds, intCorr=None, 
         if(ii % 100 == 0):
             print('Loading Image #: ' + str(ii))
         # loads data
-        tmp_img = img.imread(tomoDataFolder+'nf_%0.6d.tif' %
+        tmp_img = plt.imread(tomoDataFolder+'nf_%0.6d.tif' %
                              (tomo_img_nums[ii]))
         # removes negative and applies intensity corrections
         tmp_img0 = tmp_img[img_x_bounds[0]:img_x_bounds[1],

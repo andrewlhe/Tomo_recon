@@ -60,11 +60,11 @@ if platform == "linux":
 # local directory
 else:
     # Locations of tomography dark field images
-    tdf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//2'
+    tdf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//2//nf//'
     # Locations of tomography bright field images
-    tbf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//3'
+    tbf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//3//nf//'
     # Locations of tomography images
-    tomo_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//4'
+    tomo_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//4//nf//'
 
 tdf_img_start = 151267
 tdf_num_imgs = 20
@@ -89,6 +89,7 @@ tomo_num_imgs = 1440
 # SAMPLE DIMENSIONS
 cross_sectional_dim = 1.8  # in mm
 # ==============================================================================
+
 # %% TOMO PROCESSING - GENERATE DARK AND BRIGHT FIELD
 # ==============================================================================
 img_x_bounds = np.array([0, nrows])
@@ -96,6 +97,7 @@ img_x_bounds = np.array([0, nrows])
 #img_x_bounds = np.array([650,1350])
 img_y_bounds = np.array([0, ncols])
 #img_x_bounds = np.array([750,1250])
+
 # %%============================================================================
 # %GENERATE DARK, BRIGHT FIELD AND RADIOGRAPHS
 # ==============================================================================
@@ -109,7 +111,7 @@ tbf = tf.genBright(tbf_data_folder, tdf, tbf_img_start, 0, tbf_num_imgs)
 
 # read the tomo images into rad_stack_0, does the dark- and bright-field correction
 # rad_stack_0 is of size 1 x nrows x tomo_num_imgs x ncols
-intCorr = np.zeros([tomo_num_imgs])+1.
+intCorr = np.zeros([tomo_num_imgs]) + 1.
 theta = np.linspace(start_tomo_ang, end_tomo_ang,
                     tomo_num_imgs, endpoint=False)
 rad_stack_0 = tf.genTomo(tomo_data_folder, tdf, tbf, img_x_bounds,
@@ -119,6 +121,7 @@ rad_stack_0 = tf.genTomo(tomo_data_folder, tdf, tbf, img_x_bounds,
 img_layer = 10  # which image out of tomo_num_imgs to show
 plt.figure()
 plt.imshow(rad_stack_0[0, :, img_layer, :], vmin=0, vmax=1.8)
+
 # %%
 # CHOOSE BOUNDS FROM RADIOGRAPH FOR RECONSTRUCTION (ROI)
 roi_row_start = 716
@@ -128,9 +131,11 @@ roi_col_end = 1882
 rad_stack = rad_stack_0[0, roi_row_start:roi_row_end,
                         :, roi_col_start:roi_col_end]
 rad_stack = np.swapaxes(rad_stack, 0, 1)
+
 # %%
 plt.figure()
 plt.imshow(rad_stack[img_layer], vmin=-0.2, vmax=0.5)
+
 # %%
 # screen out nans:
 nan_val = np.argwhere(np.isnan(rad_stack))
@@ -178,6 +183,7 @@ recon_clean = tomopy.misc.corr.remove_ring(recons, rwidth=17)
 plt.figure('reconstruction22P5')
 plt.imshow(recon_clean[0, :, :], vmin=-.0007,
            vmax=0.0014, cmap='viridis')  # %%
+
 # %% PLOT FIGURE
 plt.figure()
 plt.imshow(recon_clean[0, :, :], vmin=-.0007, vmax=0.0014, cmap='viridis')
@@ -187,17 +193,20 @@ sinavg = np.average(sinogram, axis=0)
 plt.figure()
 plt.scatter(np.linspace(
     1, img_x_bounds[1]-img_x_bounds[0], img_y_bounds[1]-img_y_bounds[0]), sinavg)
+    
 # %% MAKE IMAGE BINARY WITH SoME DEFINED THRESHOLD
 bi_img = gauss1 > 0.0006
 # binary_recon=morphology.binary_erosion(bi_img,iterations=2)
 # binary_recon=img.morphology.binary_dilation(bi_img,iterations=1)
 # binary_recon=img.morphology.binary_erosion(binary_recon,iterations=0)
 plt.imshow(bi_img)
+
 # %%
 stack = stack  # _reduced #image_stack_reduced
 pixel_dist = 1
 tomo_3d = np.zeros(
     [stack.shape[1], reconstruction_fbp.shape[0], reconstruction_fbp.shape[1]])
+    
 # %%
 for layer in range(0, stack.shape[1]):
     print(layer)
@@ -224,7 +233,7 @@ for layer in range(0, stack.shape[1]):
     print('Inverting Sinogram....')
     reconstruction_fbp = iradon(sinogram_cut.T, theta=theta, circle=True)
     gauss1 = filters.gaussian(reconstruction_fbp, 2.0)
-#gauss1 = filters.gaussian(reconstruction_fbp,3.0)
+    # gauss1 = filters.gaussian(reconstruction_fbp,3.0)
     recons = np.zeros([1, gauss1.shape[0], gauss1.shape[1]])
     recons[0, :] = gauss1
     recon_clean = tomopy.misc.corr.remove_ring(recons, rwidth=17)
@@ -234,15 +243,18 @@ for layer in range(0, stack.shape[1]):
 np.save('quicktomo_hassani.npy', tomo_3d)
 #gauss = filters.gaussian(reconstruction_fbp, sigma=0.9)
 #gauss = filters.laplace(reconstruction_fbp)
+
 # %%
 tomo_reduced = tomo_3d.astype('float16')
 
 np.save('tomo_3d_sic-b4c-a-reduced.npy', tomo_reduced)
 
 # ==============================================================================
+
 # %% FOR LOOP FOR DETERMINING CENTER
 # ==============================================================================
 center_list = np.arange(20, 30, 1)  # LIST OF PIXEL VALUES FOR CENTER
+
 # %%
 reconstruction_matrix = np.zeros(
     [10, reconstruction_fbp.shape[0], reconstruction_fbp.shape[1]])
