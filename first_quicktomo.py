@@ -65,6 +65,7 @@ else:
     tbf_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//3//nf//'
     # Locations of tomography images
     tomo_data_folder = 'Y://CHESS//ID3A_2021-2//raw data//Tomo//He-2-Tomo//4//nf//'
+    temp_data_folder = "Y://CHESS?/ID3A_2021-2//raw_data//Tomo//He-2-Tomo//"
 
 tdf_img_start = 151267
 tdf_num_imgs = 20
@@ -206,7 +207,7 @@ stack = stack  # _reduced #image_stack_reduced
 pixel_dist = 1
 tomo_3d = np.zeros(
     [stack.shape[1], reconstruction_fbp.shape[0], reconstruction_fbp.shape[1]])
-    
+
 # %%
 for layer in range(0, stack.shape[1]):
     print(layer)
@@ -240,14 +241,15 @@ for layer in range(0, stack.shape[1]):
 
     tomo_3d[layer, :, :] = recon_clean
 
-np.save('quicktomo_hassani.npy', tomo_3d)
+save_name = temp_data_folder + "quicktomo.npy"
+np.save(save_name, tomo_3d)
 #gauss = filters.gaussian(reconstruction_fbp, sigma=0.9)
 #gauss = filters.laplace(reconstruction_fbp)
 
 # %%
 tomo_reduced = tomo_3d.astype('float16')
-
-np.save('tomo_3d_sic-b4c-a-reduced.npy', tomo_reduced)
+save_name = temp_data_folder + "tomo_3d_a-reduced.npy"
+np.save(save_name, tomo_reduced)
 
 # ==============================================================================
 
@@ -284,13 +286,14 @@ for i in range(0, 10):
     reconstruction_matrix[i, :, :] = reconstruction_fbp
 
 # %%
-layer_no = 7
+layer_no = 0
 plt.figure('check_tomo')
-#plt.imshow(tomo_3d[layer_no,:,:],vmin = 0.0, vmax = 0.001)
+plt.imshow(tomo_3d[layer_no,:,:],vmin = 0.0, vmax = 0.001)
 #plt.imshow(recon_clean[0,600:2100,600:2100], vmin= 0.0001, vmax=0.0005, cmap='viridis')
-plt.imshow(filters.gaussian(
-    reconstruction_matrix[layer_no, :, :], 0.2), vmin=0.0005, vmax=0.002)
+# plt.imshow(filters.gaussian(
+#     reconstruction_matrix[layer_no, :, :], 0.2), vmin=0.0005, vmax=0.002)
 #######################################
+
 # %%
 ##########SLOW TOMO HERE to BOTTOM#############
 
@@ -307,6 +310,7 @@ layers = [0, stack.shape[1]]  # img_x_bounds
 
 topVals = tf.launchValHelper(sinograms, imageBounds, layers[0],
                              layers, theta, sigma=.4, ncore=24, vmin=-0.0001, vmax=.0005)
+
 # %%
 topCenter = 10
 bottomCenter = 10
@@ -317,6 +321,7 @@ secondary_iterations = 50
 print('Reconstructing')
 recon_clean = tf.reconstruct(sinograms, centers, imageBounds, layers,
                              theta, ncore=24, algorithm='gridrec', run_secondary_sirt=True, secondary_iter=secondary_iterations)
+
 # %%
 topCenter = 10
 bottomCenter = 10
